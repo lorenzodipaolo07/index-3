@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#c8ccd5">
+<title>TEIL2 Revolo Digital</title>
+<style>
+:root{--body:#181a1f;--plate:#c9cdd5;--plate-hi:#e1e4e9;--plate-low:#a8aeb9;--ink:#252832;--knob:#111319;--mint:#9bd8c1}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;font-family:Arial,Helvetica,sans-serif}
+body{background:var(--body);color:#f3f4f6;display:flex;align-items:center;justify-content:center;padding:clamp(8px,2vw,24px)}
+.app{width:min(1120px,100%)}
+.header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 5px 12px;color:#aeb4bf;font-size:10px;font-weight:800;letter-spacing:.15em}
+#status{letter-spacing:.07em;color:#c7ccd4}
+.plate{position:relative;overflow:hidden;border-radius:24px;padding:clamp(16px,3.2vw,34px);color:var(--ink);background:linear-gradient(135deg,#e2e5eb 0%,#cbd0d9 37%,#b9bfca 100%);box-shadow:0 20px 45px #0008,inset 0 2px 2px #fff,inset 0 -2px 4px #838995}
+.plate:before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(118deg,#fff5,transparent 28%,#7e84900c 66%,#fff2)}
+.top-controls{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(14px,2.8vw,30px) 8px;width:73%;z-index:1}
+.control{display:flex;flex-direction:column;align-items:center;gap:7px;min-width:0}
+.knob{--angle:0deg;width:clamp(52px,7.7vw,82px);aspect-ratio:1;border-radius:50%;position:relative;touch-action:none;cursor:ns-resize;background:linear-gradient(140deg,#343842,#08090c 60%,#272b34);box-shadow:inset 0 2px 3px #fff3,0 3px 5px #777d88,0 6px 8px #70768265}
+.knob:before{content:"";position:absolute;inset:10%;border-radius:50%;background:radial-gradient(circle at 30% 22%,#2d313b,#0b0c10 70%);border:1px solid #4a4f5a;box-shadow:inset 0 2px 3px #000}
+.knob:after{content:"";position:absolute;top:7%;left:calc(50% - 2px);height:28%;width:4px;border-radius:3px;background:#e8eaf0;transform-origin:50% 160%;transform:rotate(var(--angle));box-shadow:0 0 1px #fff}
+.label{font-size:clamp(8px,1.05vw,11px);font-weight:900;letter-spacing:.07em;text-align:center;white-space:nowrap}
+.value{display:none}
+.right-controls{position:absolute;right:4%;top:8%;width:21%;display:flex;flex-direction:column;align-items:center;gap:12px}
+.section-label{font-size:10px;font-weight:900;letter-spacing:.15em}
+.round-pad{width:clamp(70px,10vw,108px);aspect-ratio:1;border-radius:50%;border:0;background:radial-gradient(circle at 35% 24%,#333741,#090a0d 67%,#272b33 77%,#0a0b0e 83%);box-shadow:inset 0 2px 2px #fff3,inset 0 -3px 4px #000,0 4px 7px #707682;color:#f2f3f6;font-size:10px;font-weight:900;letter-spacing:.12em;touch-action:manipulation;position:relative}
+.round-pad:before{content:"";position:absolute;inset:7%;border:1px solid #444954;border-radius:50%}
+.round-pad.active,.round-pad:active{box-shadow:inset 0 0 0 3px var(--mint),inset 0 2px 2px #fff3,0 2px 4px #555}
+#tap-led{display:inline-block;width:7px;height:7px;border-radius:50%;background:#63886e;margin-left:5px;box-shadow:0 0 4px #719e7d}
+.logoarea{position:absolute;left:25%;top:43%;width:48%;text-align:center;transform:rotate(-7deg);z-index:0;pointer-events:none}
+.logo{font-weight:1000;line-height:.9;letter-spacing:.025em;font-size:clamp(28px,5.6vw,59px);color:#e4e7ed;-webkit-text-stroke:1.5px #282c35;text-shadow:1px 2px 0 #5c626e,2px 3px 0 #fff7}
+.logo .teil{display:block;font-size:.5em;letter-spacing:.14em;margin-top:7px;-webkit-text-stroke:.9px #282c35}
+.logo .digital{display:block;font-size:.29em;letter-spacing:.34em;font-weight:500;margin-top:9px;color:#e0e3e9;-webkit-text-stroke:.35px #282c35;text-shadow:1px 1px 0 #737985}
+.lower-controls{position:relative;margin-top:clamp(22px,4vw,42px);padding-top:12px;border-top:1px solid #8e95a1a0;display:grid;grid-template-columns:1fr 1fr 1.2fr;align-items:center;gap:14px;z-index:2}
+.group{display:flex;align-items:center;justify-content:center;gap:10px;min-width:0}
+.mini-label{font-size:9px;font-weight:900;letter-spacing:.1em;white-space:nowrap}
+.rail{width:48px;height:16px;border-radius:3px;background:linear-gradient(#9aa1ad,#e3e6eb);border:1px solid #858c98;position:relative;box-shadow:inset 0 1px 2px #6f7580}
+.rail:after{content:"";position:absolute;top:-4px;left:var(--pos,50%);transform:translateX(-50%);width:13px;height:22px;border-radius:2px;background:linear-gradient(90deg,#565c67,#252a33 50%,#858b96);box-shadow:0 1px 2px #555}
+.rail button{position:absolute;inset:-7px -5px;border:0;background:transparent;z-index:2}
+.toggle{width:42px;height:23px;border-radius:14px;border:1px solid #858b96;background:#9298a4;padding:2px;position:relative;flex:none}
+.toggle:after{content:"";display:block;width:17px;height:17px;border-radius:50%;background:linear-gradient(#fff,#cfd3da);box-shadow:0 1px 2px #555;transition:transform .12s}
+.toggle.on{background:#4d9879}.toggle.on:after{transform:translateX(18px)}
+.shape-buttons,.rate-buttons{display:flex;gap:4px}
+.small-btn{min-height:28px;padding:0 9px;border:1px solid #8c929d;border-radius:4px;background:linear-gradient(#e1e4e9,#b9bfca);color:#2b303a;font-size:9px;font-weight:900;letter-spacing:.06em;box-shadow:0 1px 1px #fff8}
+.small-btn.active{background:linear-gradient(#4a505c,#222630);color:#fff;border-color:#343944}
+.mixrow{display:flex;align-items:center;gap:8px;min-width:0}
+.mixrow input{width:100%;min-width:60px;accent-color:#434955}
+.mixrow output{font-size:10px;font-weight:800;min-width:29px}
+.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:10px 4px 0;color:#aab1bd;font-size:10px;line-height:1.4}
+@media(max-width:600px){
+ body{padding:8px}.header{font-size:8px;margin-bottom:8px}.plate{border-radius:18px;padding:15px 10px}
+ .top-controls{width:77%;column-gap:2px;row-gap:22px}.knob{width:clamp(44px,12vw,63px)}.label{font-size:7.5px;letter-spacing:.035em}
+ .right-controls{right:1%;top:8%;width:21%;gap:9px}.round-pad{width:clamp(58px,16vw,78px);font-size:8px}.section-label{font-size:8px}
+ .logoarea{left:22%;top:44%;width:54%}.logo{font-size:clamp(23px,7vw,38px)}
+ .lower-controls{grid-template-columns:1fr 1fr;gap:12px 5px;margin-top:26px;padding-top:10px}
+ .lower-controls .mixgroup{grid-column:1/-1}.mini-label{font-size:8px}.rail{width:35px}
+ .small-btn{padding:0 6px;min-height:26px;font-size:8px}.footer{font-size:9px}
+}
+</style>
+</head>
+<body>
+<main class="app">
+ <div class="header"><span>TEIL2 · REVolo DIGITAL</span><span id="status">AUDIO OFF</span></div>
+ <section class="plate" aria-label="Revolo Digital audio effects">
+  <div class="top-controls" id="controls"></div>
+  <div class="right-controls">
+   <div class="section-label">TAP <i id="tap-led"></i></div>
+   <button class="round-pad" id="tap" aria-label="Tap tempo">TAP</button>
+   <div class="section-label" style="margin-top:8px">FX</div>
+   <button class="round-pad" id="fxpad" aria-label="FX hold">FX<br>HOLD</button>
+  </div>
+  <div class="logoarea"><div class="logo">REVOLO<span class="teil">TEIL2</span><span class="digital">DIGITAL</span></div></div>
+  <div class="lower-controls">
+   <div class="group">
+    <span class="mini-label">WET</span>
+    <div class="rail" id="mixrail" style="--pos:35%"><button id="mixslide" aria-label="Quick wet mix"></button></div>
+    <span class="mini-label">MIX</span>
+   </div>
+   <div class="group">
+    <span class="mini-label">MOM</span>
+    <button class="toggle on" id="momentary" aria-label="Momentary mode"></button>
+    <span class="mini-label">FX ON</span>
+    <button class="toggle" id="power" aria-label="Effect power"></button>
+   </div>
+   <div class="group">
+    <span class="mini-label">SHAPE</span>
+    <div class="shape-buttons"><button class="small-btn active" data-shape="sine">SINE</button><button class="small-btn" data-shape="gate">GATE</button></div>
+   </div>
+   <div class="group">
+    <span class="mini-label">RATE</span>
+    <div class="rate-buttons"><button class="small-btn" data-rate="0.25">1/4</button><button class="small-btn active" data-rate="0.5">1/8</button><button class="small-btn" data-rate="1">1/16</button></div>
+   </div>
+   <div class="group mixgroup">
+    <span class="mini-label">DRY</span>
+    <div class="mixrow"><input id="mix" type="range" min="0" max="100" value="35"><output id="mixval">35%</output></div>
+    <span class="mini-label">WET</span>
+   </div>
+  </div>
+ </section>
+ <div class="footer"><span>Prototipo indipendente ispirato al layout TEIL2 Revolo</span><span id="hint">Premi FX ON per attivare la demo audio</span></div>
+</main>
+<script>
+const specs=[
+ {id:'reverb',label:'REVERB',min:0,max:100,value:48,unit:'%'},
+ {id:'character',label:'CHARAC',min:0,max:100,value:55,unit:'%'},
+ {id:'length',label:'LENGTH',min:0,max:100,value:60,unit:'%'},
+ {id:'air',label:'AIR',min:0,max:100,value:35,unit:'%'},
+ {id:'noise',label:'NOISE',min:0,max:100,value:0,unit:'%'},
+ {id:'tremolo',label:'TREMOLO',min:0,max:100,value:0,unit:'%'},
+ {id:'tempo',label:'TEMPO',min:60,max:180,value:120,unit:' BPM'},
+ {id:'filter',label:'FILTER',min:0,max:100,value:50,unit:'%'}
+];
+const root=document.querySelector('#controls'),state={};
+let audio=null,powered=false,momentary=true,shape='sine',rateFactor=.5,tapTimes=[];
+function makeKnob(s){
+ state[s.id]=s.value;const wrap=document.createElement('div');wrap.className='control';
+ const knob=document.createElement('div');knob.className='knob';knob.tabIndex=0;knob.setAttribute('role','slider');knob.setAttribute('aria-label',s.label);
+ const label=document.createElement('div');label.className='label';label.textContent=s.label;
+ const value=document.createElement('div');value.className='value';value.id='v-'+s.id;
+ wrap.append(knob,label,value);root.append(wrap);
+ function set(v){v=Math.max(s.min,Math.min(s.max,v));state[s.id]=v;knob.style.setProperty('--angle',(-135+(v-s.min)/(s.max-s.min)*270)+'deg');value.textContent=Math.round(v)+s.unit;knob.setAttribute('aria-valuenow',v);if(audio)audio.update(s.id,v)}
+ set(s.value);let lastY=null;
+ knob.addEventListener('pointerdown',e=>{lastY=e.clientY;knob.setPointerCapture(e.pointerId)});
+ knob.addEventListener('pointermove',e=>{if(lastY===null)return;const dy=lastY-e.clientY;lastY=e.clientY;set(state[s.id]+dy*(s.max-s.min)/170)});
+ const end=()=>lastY=null;knob.addEventListener('pointerup',end);knob.addEventListener('pointercancel',end);
+ knob.addEventListener('keydown',e=>{if(['ArrowUp','ArrowRight'].includes(e.key)){set(state[s.id]+1);e.preventDefault()}if(['ArrowDown','ArrowLeft'].includes(e.key)){set(state[s.id]-1);e.preventDefault()}});
+}
+specs.forEach(makeKnob);
+class AudioEngine{
+ constructor(){
+  const C=window.AudioContext||window.webkitAudioContext;this.ctx=new C();
+  this.input=this.ctx.createGain();this.filter=this.ctx.createBiquadFilter();this.filter.type='highpass';
+  this.trem=this.ctx.createGain();this.lfo=this.ctx.createOscillator();this.depth=this.ctx.createGain();
+  this.lfo.connect(this.depth);this.depth.connect(this.trem.gain);this.lfo.start();
+  this.conv=this.ctx.createConvolver();this.conv.buffer=this.impulse(2,2.5);
+  this.dry=this.ctx.createGain();this.wet=this.ctx.createGain();this.out=this.ctx.createGain();
+  this.input.connect(this.filter);this.filter.connect(this.trem);this.trem.connect(this.dry);this.trem.connect(this.conv);this.conv.connect(this.wet);this.dry.connect(this.out);this.wet.connect(this.out);this.out.connect(this.ctx.destination);
+  this.osc=this.ctx.createOscillator();this.osc.type='sawtooth';this.osc.frequency.value=110;
+  this.test=this.ctx.createGain();this.test.gain.value=0;this.osc.connect(this.test);this.test.connect(this.input);this.osc.start();
+  this.noiseBuffer=this.makeNoise();this.noise=this.ctx.createBufferSource();this.noise.buffer=this.noiseBuffer;this.noise.loop=true;
+  this.noiseGain=this.ctx.createGain();this.noiseGain.gain.value=0;this.noise.connect(this.noiseGain);this.noiseGain.connect(this.input);this.noise.start();
+  this.updateAll();
+ }
+ impulse(sec,decay){const n=Math.floor(this.ctx.sampleRate*sec),b=this.ctx.createBuffer(2,n,this.ctx.sampleRate);for(let c=0;c<2;c++){const d=b.getChannelData(c);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,decay)}return b}
+ makeNoise(){const b=this.ctx.createBuffer(1,this.ctx.sampleRate*2,this.ctx.sampleRate),d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;return b}
+ async start(){await this.ctx.resume();this.test.gain.setTargetAtTime(.025,this.ctx.currentTime,.03)}
+ stop(){this.test.gain.setTargetAtTime(0,this.ctx.currentTime,.03);this.noiseGain.gain.setTargetAtTime(0,this.ctx.currentTime,.03)}
+ update(id,v){const t=this.ctx.currentTime;
+  if(id==='filter')this.filter.frequency.setTargetAtTime(80+Math.pow(v/100,2)*14000,t,.02);
+  if(id==='air')this.filter.Q.setTargetAtTime(.5+v/100*7,t,.02);
+  if(id==='tremolo'){this.depth.gain.setTargetAtTime(v/100*.48,t,.02);this.trem.gain.setTargetAtTime(1-v/100*.48,t,.02)}
+  if(id==='tempo')this.lfo.frequency.setTargetAtTime(v/60*rateFactor,t,.02);
+  if(id==='reverb')this.wet.gain.setTargetAtTime(v/100,t,.02);
+  if(id==='character')this.filter.type=v<33?'lowpass':v<66?'highpass':'bandpass';
+  if(id==='length')this.conv.buffer=this.impulse(.25+v/100*3,1+v/100*4);
+  if(id==='noise')this.noiseGain.gain.setTargetAtTime(v/100*.08,t,.02);
+ }
+ updateAll(){for(const s of specs)this.update(s.id,state[s.id]);this.setMix(+document.querySelector('#mix').value)}
+ setMix(v){this.dry.gain.setTargetAtTime(1-v/100,this.ctx.currentTime,.02);this.wet.gain.setTargetAtTime(v/100,this.ctx.currentTime,.02)}
+ setNoise(on){this.noiseGain.gain.setTargetAtTime(on?Math.max(.01,state.noise/100*.12):0,this.ctx.currentTime,.015)}
+ setPad(on){this.test.gain.setTargetAtTime(on?.06:(powered?.025:0),this.ctx.currentTime,.015)}
+ setShape(next){shape=next;if(shape==='gate')this.lfo.type='square';else this.lfo.type='sine'}
+ setRate(f){rateFactor=f;this.update('tempo',state.tempo)}
+}
+async function enableAudio(){try{if(!audio)audio=new AudioEngine();await audio.start();powered=true;document.querySelector('#power').classList.add('on');document.querySelector('#status').textContent='AUDIO ON · DEMO';document.querySelector('#hint').textContent='Demo locale attiva: nessun ingresso DJ collegato';return true}catch(e){document.querySelector('#status').textContent='AUDIO ERROR';return false}}
+document.querySelector('#power').addEventListener('click',async()=>{if(!powered){await enableAudio()}else{powered=false;audio?.stop();document.querySelector('#power').classList.remove('on');document.querySelector('#status').textContent='AUDIO OFF';document.querySelector('#hint').textContent='Premi FX ON per attivare la demo audio'}});
+document.querySelector('#momentary').addEventListener('click',e=>{momentary=!momentary;e.currentTarget.classList.toggle('on',momentary)});
+document.querySelectorAll('[data-shape]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-shape]').forEach(x=>x.classList.toggle('active',x===b));audio?.setShape(b.dataset.shape);shape=b.dataset.shape}));
+document.querySelectorAll('[data-rate]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-rate]').forEach(x=>x.classList.toggle('active',x===b));rateFactor=+b.dataset.rate;audio?.setRate(rateFactor)}));
+document.querySelector('#mix').addEventListener('input',e=>{const v=+e.target.value;document.querySelector('#mixval').textContent=v+'%';document.querySelector('#mixrail').style.setProperty('--pos',v+'%');if(audio)audio.setMix(v)});
+document.querySelector('#mixslide').addEventListener('click',()=>{const el=document.querySelector('#mix');let v=+el.value;v=v>=80?0:Math.min(100,v+20);el.value=v;el.dispatchEvent(new Event('input'))});
+function hold(el,fn){let active=false;const down=async e=>{e.preventDefault();active=true;el.classList.add('active');if(!audio)await enableAudio();fn(true)};const up=()=>{if(!active)return;active=false;el.classList.remove('active');if(momentary)fn(false)};el.addEventListener('pointerdown',down);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);el.addEventListener('pointerleave',up)}
+hold(document.querySelector('#fxpad'),on=>{if(audio)audio.setPad(on)});
+hold(document.querySelector('#tap'),on=>{if(!on)return;const led=document.querySelector('#tap-led');led.style.background='#9bd8c1';setTimeout(()=>led.style.background='#63886e',150);const now=performance.now();tapTimes.push(now);tapTimes=tapTimes.filter(t=>now-t<3000);if(tapTimes.length>=2){const gaps=[];for(let i=1;i<tapTimes.length;i++)gaps.push(tapTimes[i]-tapTimes[i-1]);const bpm=Math.max(60,Math.min(180,Math.round(60000/(gaps.reduce((a,b)=>a+b,0)/gaps.length))));state.tempo=bpm;const k=[...document.querySelectorAll('.control')].find(x=>x.querySelector('.label').textContent==='TEMPO')?.querySelector('.knob');if(k)k.style.setProperty('--angle',(-135+(bpm-60)/120*270)+'deg');if(audio)audio.update('tempo',bpm)}});
+</script>
+</body>
+</html>
